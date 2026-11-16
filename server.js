@@ -19,7 +19,8 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
 }
 if (production && process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
 
-const dataDir = path.join(__dirname, 'data');
+const dataDir = process.env.DATA_DIR || (production ? '/tmp/data' : path.join(__dirname, 'data'));
+
 fs.mkdirSync(dataDir, { recursive: true });
 const db = new Database(path.join(dataDir, 'lumen.sqlite'));
 db.pragma('journal_mode = WAL');
