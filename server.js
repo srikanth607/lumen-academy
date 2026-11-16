@@ -175,7 +175,15 @@ app.delete('/api/users/:id',requireAuth,requireRole('owner'),(req,res)=>{
   remove(id); res.json({ok:true});
 });
 
-app.use(express.static(path.join(__dirname,'public'),{extensions:['html']}));
-app.get('*',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
+const publicDir = path.join(process.cwd(), 'public');
+const indexHtmlPath = path.join(publicDir, 'index.html');
+const fallbackHtml = fs.existsSync(indexHtmlPath) ? fs.readFileSync(indexHtmlPath, 'utf8') : null;
+
+app.use(express.static(publicDir, { extensions: ['html'] }));
+app.get('*', (req, res) => {
+  if (fs.existsSync(indexHtmlPath)) return res.sendFile(indexHtmlPath);
+  if (fallbackHtml) return res.type('html').send(fallbackHtml);
+  res.status(404).send('index.html not found in deployment bundle.');
+});
 app.use((err,req,res,next)=>{console.error(err);res.status(500).json({error:'Unexpected server error.'});});
 app.listen(PORT,()=>console.log(`Lumen Academy running at http://localhost:${PORT}`));
