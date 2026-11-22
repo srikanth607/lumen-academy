@@ -92,6 +92,7 @@ function csrf(req,res,next){
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
   const origin = req.get('origin');
   if (origin) { try { if (new URL(origin).host !== req.get('host')) return res.status(403).json({error:'Invalid request origin.'}); } catch { return res.status(403).json({error:'Invalid request origin.'}); } }
+  if (req.path === '/auth/login' || req.path === '/auth/signup') return next();
   const token=req.get('x-csrf-token');
   const supplied=Buffer.from(token || '');
   const expected=Buffer.from(req.session.csrfToken || '');
