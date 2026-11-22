@@ -2811,51 +2811,14 @@ eng:{n:"English Language",i:"📖",topics:[ENG1,ENG2,ENG3,ENG4,ENG5,ENG6,ENG7]}
 };
 const ROLES={student:"Student",teacher:"Teacher",coordinator:"Coordinator",principal:"Principal",owner:"Owner"};
 let db={users:[],codes:[],posts:[],done:{}},me=null,csrfToken="";
-async function api(url, options = {}) {
-  const S = JSON.parse(localStorage.getItem("lumen_db") || "null") || {
-    users: [{ id: 1, n: "Srikanth", e: "tksrikanth587@gmail.com", p: "srikanth@20123", r: "owner" }],
-    codes: [],
-    posts: [],
-    done: {}
-  };
-  const save = () => localStorage.setItem("lumen_db", JSON.stringify(S));
-  const uid = Number(localStorage.getItem("lumen_uid") || 0);
-  const u = S.users.find(x => x.id === uid) || null;
-  const pub = x => x && ({ id: x.id, n: x.n, e: x.e, r: x.r });
-  const body = options.body ? JSON.parse(options.body) : {};
-  const m = (options.method || "GET").toUpperCase();
-
-  if (url === "/api/bootstrap") { save(); return { csrfToken: "local", me: pub(u), db: { users: S.users.map(pub), posts: S.posts, codes: S.codes, done: S.done } }; }
-  if (url === "/api/auth/login") {
-    const f = S.users.find(x => x.e.toLowerCase() === (body.email || "").trim().toLowerCase() && x.p === body.password);
-    if (!f) throw new Error("Email or password is incorrect.");
-    localStorage.setItem("lumen_uid", String(f.id));
-    return { me: pub(f), csrfToken: "local" };
-  }
-  if (url === "/api/auth/signup") {
-    const email = (body.email || "").trim().toLowerCase();
-    if (S.users.some(x => x.e.toLowerCase() === email)) throw new Error("An account with that email already exists.");
-    const inv = (body.invite || "").trim().toUpperCase();
-    const c = inv ? S.codes.find(x => x.c === inv) : null;
-    if (inv && !c) throw new Error("Invalid invitation code.");
-    const nu = { id: Date.now(), n: (body.name || "Student").trim(), e: email, p: body.password, r: c ? c.r : "student" };
-    S.users.push(nu);
-    if (c) S.codes = S.codes.filter(x => x.c !== inv);
-    save();
-    localStorage.setItem("lumen_uid", String(nu.id));
-    return { me: pub(nu), csrfToken: "local" };
-  }
-  if (url === "/api/auth/logout") { localStorage.removeItem("lumen_uid"); return { ok: true }; }
-  if (url.startsWith("/api/progress/") && u) { S.done[u.e + url.split("/").pop()] = 1; save(); return { ok: true }; }
-  if (url === "/api/posts" && u) { S.posts.unshift({ id: Date.now(), t: body.title, s: body.subject, b: body.body, author: u.n, createdAt: new Date().toISOString() }); save(); return { ok: true }; }
-  if (url === "/api/invites" && m === "POST") {
-    const prefix = { student: "STU", teacher: "TCH", coordinator: "COO", principal: "PRI" }[body.role] || "STU";
-    const code = prefix + "-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-    S.codes.unshift({ c: code, r: body.role }); save(); return { code, role: body.role };
-  }
-  if (url.startsWith("/api/invites/") && m === "DELETE") { S.codes = S.codes.filter(x => x.c !== url.split("/").pop()); save(); return { ok: true }; }
-  if (url.startsWith("/api/users/") && m === "DELETE") { const id = Number(url.split("/").pop()); S.users = S.users.filter(x => x.id !== id); save(); return { ok: true }; }
-  return { ok: true };
+async function api(url,options={}){
+  const headers={...(options.headers||{})};
+  if(options.body!==undefined)headers["Content-Type"]="application/json";
+  if(!["GET","HEAD"].includes((options.method||"GET").toUpperCase())&&csrfToken)headers["X-CSRF-Token"]=csrfToken;
+  const response=await fetch(url,{credentials:"same-origin",...options,headers});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"The request could not be completed.");
+  return data;
 }
 async function refreshData(){const d=await api("/api/bootstrap");csrfToken=d.csrfToken;me=d.me;db=d.db;}
 const esc=s=>String(s).replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
