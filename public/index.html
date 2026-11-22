@@ -2952,7 +2952,7 @@ h+=`<span class="grp">Tools</span><a href="#glossary" class="${on(p[0]=="glossar
 const pc=N?Math.round(D/N*100):0,lv=pc>=100?"Master 🏆":pc>=60?"Scientist 🔬":pc>=25?"Explorer 🧭":pc>0?"Starter 🌱":"Newcomer ✨";
 h+=`<div class="pb"><svg viewBox="0 0 36 36" width="38" height="38" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" stroke-opacity=".18" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#1f9d57" stroke-width="4" stroke-linecap="round" stroke-dasharray="${pc*.9425} 94.25" transform="rotate(-90 18 18)"/></svg><span><b>${me?pc+"%":"–"}</b><small>${me?lv+", "+D+" of "+N+" chapters":"Log in to track progress"}</small></span></div>`;
 $("#side").innerHTML=h}
-addEventListener("hashchange",route);(async()=>{try{await refreshData();route()}catch(e){document.querySelector("#app").innerHTML="<div class=\"card box\"><h2>Could not connect</h2><p>Start the Lumen Academy server, then refresh this page.</p><p class=\"err\">"+esc(e.message)+"</p></div>"}})();
+addEventListener("hashchange",route);if(!location.hash)location.hash="#home";route();(async()=>{try{await refreshData();route()}catch(e){console.warn(e)}})();
 </script><script>
 (function(){const g=i=>document.getElementById(i),v=i=>+g(i).value,sh=(i)=>{const e=g(i+"v");if(e)e.textContent=g(i).value};
 const sv=(a)=>a.forEach(sh);
