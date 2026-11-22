@@ -283,8 +283,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
       args: [name, email, hash, role]
     });
 
-    if (invite) {
-Use code with caution.
+if (invite) {
 await db.execute({ sql: 'DELETE FROM invite_codes WHERE code = ?', args: [invite] });
 }
 req.session.userId = Number(ins.lastInsertRowid);
@@ -357,7 +356,7 @@ try {
 const role = req.body.role;
 const prefixes = { student: 'STU', teacher: 'TCH', coordinator: 'COO', principal: 'PRI' };
 if (!prefixes[role]) return res.status(400).json({ error: 'Invalid role.' });
-const code = ${prefixes[role]}-${crypto.randomBytes(4).toString('hex').toUpperCase()};
+const code = prefixes[role] + "-" + crypto.randomBytes(4).toString("hex").toUpperCase();
 await db.execute({ sql: 'INSERT INTO invite_codes (code, role) VALUES (?, ?)', args: [code, role] });
 res.status(201).json({ code, role });
 } catch (err) {
@@ -394,5 +393,5 @@ console.error(err);
 res.status(500).json({ error: err.message || 'Server error.' });
 });
 app.listen(PORT, '0.0.0.0', () => {
-console.log(Lumen Academy server listening on port ${PORT});
+console.log("Lumen Academy server listening on port " + PORT);
 });
