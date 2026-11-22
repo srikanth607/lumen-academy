@@ -262,7 +262,6 @@ app.post('/api/auth/login', authLimiter, async (req, res, next) => {
     const password = typeof req.body.password === 'string' ? req.body.password : '';
 
     const userRes = await db.execute({ sql: 'SELECT * FROM users WHERE email = ?', args: [email] });
-Use code with caution.
 const user = userRes.rows[0];
 if (!user || !(await bcrypt.compare(password, user.password_hash))) {
 return res.status(401).json({ error: 'Incorrect email or password.' });
@@ -306,7 +305,7 @@ try {
 const role = req.body.role;
 const prefixes = { student: 'STU', teacher: 'TCH', coordinator: 'COO', principal: 'PRI' };
 if (!prefixes[role]) return res.status(400).json({ error: 'Invalid role.' });
-const code = ${prefixes[role]}-${crypto.randomBytes(4).toString('hex').toUpperCase()};
+const code = `${prefixes[role]}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 await db.execute({ sql: 'INSERT INTO invite_codes (code, role) VALUES (?, ?)', args: [code, role] });
 res.status(201).json({ code, role });
 } catch (err) { next(err); }
@@ -334,4 +333,4 @@ app.use((err, req, res, next) => {
 console.error(err);
 res.status(500).json({ error: err.message || 'Server error.' });
 });
-app.listen(PORT, () => console.log(Lumen Academy server listening on port ${PORT}));
+app.listen(PORT, () => console.log(`Lumen Academy server listening on port ${PORT}`));
