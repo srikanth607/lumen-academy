@@ -132,11 +132,11 @@ app.use(session({
 }));
 
 const authLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
+  windowMs: 60 * 1000,
   limit: 20,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { error: 'Too many login attempts. Please wait 10 minutes.' }
+  message: { error: 'Too many login attempts. Please wait 60 seconds.' }
 });
 
 app.use('/api', async (req, res, next) => {
