@@ -2920,9 +2920,9 @@ async function post(){const t=$("#pt").value.trim();if(!t)return;try{await api("
 async function gen(){try{await api("/api/invites",{method:"POST",body:JSON.stringify({role:$("#cr").value})});await refreshData();route()}catch(e){alert(e.message)}}
 async function delc(i){try{await api("/api/invites/"+encodeURIComponent(db.codes[i].c),{method:"DELETE"});await refreshData();route()}catch(e){alert(e.message)}}
 async function delu(i){try{await api("/api/users/"+encodeURIComponent(db.users[i].id),{method:"DELETE"});await refreshData();route()}catch(e){alert(e.message)}}
-function route(){const h=(location.hash||"#home").slice(1).split("/");let v;
+let _lastH="";function route(){const h=(location.hash||"#home").slice(1).split("/");let v;
 if(h[0]=="glossary")v=gloss();else if(h[0]=="login")v=loginP();else if(h[0]=="signup")v=signupP();else if(h[0]=="subject")v=subject(h[1],h[2],h[3]);else if(ROLES[h[0]])v=panel(h[0]);else v=home();
-nav();side();$("#app").innerHTML=v;scrollTo(0,0)}
+nav();side();$("#app").innerHTML=v;if(location.hash!==_lastH){_lastH=location.hash;scrollTo(0,0)}}
 function side(){const p=(location.hash||"#home").slice(1).split("/"),on=x=>x?"on":"";
 let h=`<a href="#home" class="${on(p[0]=="home"||p[0]=="")}">🏠 Home</a>`;
 Object.entries(SUBJ).forEach(([k,s])=>{let d=0;s.topics.forEach((t,i)=>{if(me&&db.done[me.e+k+i])d++});h+=`<a href="#subject/${k}" style="--c:${COL[k]}" class="${on(p[0]=="subject"&&p[1]==k)}">${s.i} ${s.n.replace(" (0620)","")}<i>${me?d+"/"+s.topics.length:s.topics.length}</i></a>`});
