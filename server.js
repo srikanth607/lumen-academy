@@ -98,16 +98,15 @@ async function initDatabase() {
   ], 'write');
 
   const countRes = await db.execute("SELECT COUNT(*) AS count FROM users WHERE role = 'owner'");
-  if (Number(countRes.rows[0]?.count || 0) === 0) {
-    const ownerName = (process.env.OWNER_NAME || 'Srikanth').trim();
-    const ownerEmail = (process.env.OWNER_EMAIL || '').trim().toLowerCase();
-    const ownerPass = process.env.OWNER_PASSWORD || '';
-    if (ownerEmail && ownerPass.length >= 8) {
-      const hash = await bcrypt.hash(ownerPass, 10);
-      await db.execute({
-        sql: 'INSERT OR IGNORE INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
-        args: [ownerName, ownerEmail, hash, 'owner']
-      });
+  const ownerName = (process.env.OWNER_NAME || "Srikanth").trim();
+  const ownerEmail = (process.env.OWNER_EMAIL || "").trim().toLowerCase();
+  const ownerPass = process.env.OWNER_PASSWORD || "";
+  if (ownerEmail && ownerPass.length >= 8) {
+    const hash = await bcrypt.hash(ownerPass, 10);
+    if (Number(countRes.rows?.[0]?.count || 0) === 0) {
+      await db.execute({ sql: "INSERT OR IGNORE INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)", args: [ownerName, ownerEmail, hash, "owner"] });
+    } else {
+      await db.execute({ sql: "UPDATE users SET name = ?, email = ?, password_hash = ? WHERE role = 'owner'", args: [ownerName, ownerEmail, hash] });
     }
   }
   ready = true;
